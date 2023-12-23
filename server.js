@@ -1,5 +1,6 @@
 const express = require('express');
 const { exec } = require('child_process');
+const SmeeClient = require('smee-client')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,12 @@ app.post('/webhook', options, (req, res) => {
     }
 
 })
+app.post('/events', options, (req, res) => {
+    res.status(200).send("Event well received");
+    const eventPayload = JSON.stringify(req.body);
+    console.log("The event payload: " + eventPayload);
+    console.log("Req header: " + JSON.stringify(req.headers));
+})
 
 function launchBuildProcess() {
     exec("npm install", (err, stdout, stderr) => {
@@ -37,3 +44,16 @@ function launchBuildProcess() {
 app.listen(PORT, () => {
     console.log(`CI server is up and listening for events at ${PORT}`)
 })
+
+const smee = new SmeeClient({
+    source: 'https://smee.io/NCLblu2qxIE7C0i',
+    target: 'http://localhost:3000/events',
+    logger: console
+})
+const events = smee.start()
+
+process.on('SIGINT', () => {
+    console.log("Stopping event forwarding and shutting down server...");
+    events.close();
+    server.close();
+});
