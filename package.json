@@ -2,5 +2,15 @@
   "dependencies": {
     "express": "^4.18.2",
     "smee-client": "^2.0.0"
-  }
+  },
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "name": "ci-server",
+  "description": "Custom Nodejs-Express built-in server for Continuous Integration",
+  "version": "1.0.0",
+  "main": "server.js",
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
 }
