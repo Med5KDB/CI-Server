@@ -37,21 +37,3 @@ function launchBuildProcess() {
 app.listen(PORT, () => {
     console.log(`CI server is up and listening for events at ${PORT}`)
 })
-
-const SmeeClient = require('smee-client');
-const { stdout, stderr } = require('process');
-
-const smee = new SmeeClient({
-  source: 'https://smee.io/NCLblu2qxIE7C0i',
-  target: `http://localhost:${PORT}/events`,
-  logger: console
-})
-
-const events = smee.start()
-
-// Stop forwarding events
-process.on('SIGINT', () => {
-    console.log("Stopping event forwarding and shutting down server...");
-    events.close();
-    server.close();
-});
