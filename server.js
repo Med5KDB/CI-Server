@@ -19,7 +19,7 @@ app.post("/webhook", options, (req, res) => {
 
   if (
     (githubEvent === "push" && data["ref"] === "refs/heads/main") ||
-    (githubEvent === "pull_request" && action == "opened")
+    (githubEvent === "pull_request" && action == "opened" || action === "synchronize")
   ) {
     console.log("New push");
     console.log("Starting build process...");
@@ -30,13 +30,12 @@ app.post("/events", options, (req, res) => {
   res.status(200).send("Event well received");
   const eventPayload = JSON.stringify(req.body);
   console.log("The event payload: " + eventPayload);
-  console.log("The ref branch" + data.req);
-  console.log("The ref branch" + data["req"]);
+  console.log("The ref branch" + eventPayload.ref);
   console.log("Req header: " + JSON.stringify(req.headers));
 });
 
 function launchBuildProcess() {
-  exec("npm install", (err, stdout, stderr) => {
+  exec("cd ../GameOfLife && npm install", (err, stdout, stderr) => {
     if (err) {
       console.error(`An error occured when executing npm install: ${err}`);
     }
@@ -44,6 +43,7 @@ function launchBuildProcess() {
       console.error("npm install: " + stderr);
     }
     console.log("npm install..." + stdout);
+
     exec("npm test", (testErr, testStderr, testStdout) => {
       if (testErr) {
         console.error(`Tests failed: ${testErr}`);
@@ -54,6 +54,7 @@ function launchBuildProcess() {
       console.log("npm test..." + testStdout);
       console.log("Tests passed");
     });
+
     exec("npm build", (buildErr, buildSterr, buildStout) => {
       if (buildErr) {
         console.error(`Build failed: ${buildErr}`);
@@ -83,3 +84,4 @@ process.on("SIGINT", () => {
   events.close();
   server.close();
 });
+
